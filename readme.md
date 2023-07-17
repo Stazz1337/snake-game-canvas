@@ -1,5 +1,4 @@
 # Snake game on canvas
 
-## To play press Arrows on keyboard
+## To play press Arrows on keyboard or on screen
 
-## Mobile control in development

@@ -1,0 +1,44 @@
+#controls-wrapper {
+  display: flex;
+  height: 30vh;
+  justify-content: center;
+}
+
+#controls {
+  display: inline-grid;
+  grid-column-gap: 0;
+  align-self: end;
+}
+
+.movements_control {
+  border: solid 1px black;
+  margin: 0;
+  padding: 0;
+}
+
+.movements_control img {
+  width: inherit;
+  height: inherit;
+}
+
+#keyboard_key_up {
+  grid-column-start: 2;
+}
+
+#keyboard_key_left {
+  grid-column-start: 1;
+}
+
+#keyboard_key_down {
+  grid-row-start: 3;
+  grid-column-start: 2;
+}
+
+#keyboard_key_right {
+  grid-column-start: 3;
+}
+
+.movements_control {
+  width: 60px;
+  height: 60px;
+}

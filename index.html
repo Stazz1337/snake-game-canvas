@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snake</title>
+    <link rel="stylesheet" href="./styles.css">
     <style>
         body{
             margin: 0;
@@ -17,10 +18,19 @@
             box-shadow: black 20px 10px 50px;
         }
     </style>
+
 </head>
 <body>
     <h1 style="color: green;"><span style="color: orange;">S</span>olid <span style="color: orange;">S</span>nake</h1>
     <canvas id="game" width="400" height="400"></canvas>
+    <div id="controls-wrapper">
+        <div id="controls">
+          <button id="keyboard_key_up" class="movements_control">&#8593;</button>
+          <button id="keyboard_key_left" class="movements_control">&#8592;</button>
+          <button id="keyboard_key_down" class="movements_control">&#8595;</button>
+          <button id="keyboard_key_right" class="movements_control">&#8594;</button>
+        </div>
+      </div>
     <script src="./index.js"></script>
 </body>
 </html>

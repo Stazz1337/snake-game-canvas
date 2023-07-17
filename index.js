@@ -1,5 +1,9 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
+const upButton = document.getElementById('keyboard_key_up');
+const downButton = document.getElementById('keyboard_key_down');
+const leftButton = document.getElementById('keyboard_key_left');
+const rightButton = document.getElementById('keyboard_key_right');
 
 const img = new Image();
 img.src = './images/cat.jpg';
@@ -188,5 +192,29 @@ function keyDown(event) {
     xVelocity = 1;
   }
 }
+
+upButton.addEventListener('touchstart', () => {
+  if (yVelocity == 1) return;
+  yVelocity = -1;
+  xVelocity = 0;
+});
+
+downButton.addEventListener('touchstart', () => {
+  if (yVelocity == -1) return;
+  yVelocity = 1;
+  xVelocity = 0;
+});
+
+leftButton.addEventListener('touchstart', () => {
+  if (xVelocity == 1) return;
+  yVelocity = 0;
+  xVelocity = -1;
+});
+
+rightButton.addEventListener('touchstart', () => {
+  if (xVelocity == -1) return;
+  yVelocity = 0;
+  xVelocity = 1;
+});
 
 drawGame();

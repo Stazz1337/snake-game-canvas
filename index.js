@@ -193,25 +193,33 @@ function keyDown(event) {
   }
 }
 
-upButton.addEventListener('touchstart', () => {
+upButton.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
   if (yVelocity == 1) return;
   yVelocity = -1;
   xVelocity = 0;
 });
 
-downButton.addEventListener('touchstart', () => {
+downButton.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
   if (yVelocity == -1) return;
   yVelocity = 1;
   xVelocity = 0;
 });
 
-leftButton.addEventListener('touchstart', () => {
+leftButton.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
   if (xVelocity == 1) return;
   yVelocity = 0;
   xVelocity = -1;
 });
 
-rightButton.addEventListener('touchstart', () => {
+rightButton.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
   if (xVelocity == -1) return;
   yVelocity = 0;
   xVelocity = 1;

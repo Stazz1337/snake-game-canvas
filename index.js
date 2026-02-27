@@ -804,7 +804,7 @@ class Game {
     // Label
     ctx.shadowBlur = 0;
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 10px "Segoe UI", Arial, sans-serif';
+    ctx.font = '6px "Press Start 2P", "Segoe UI", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(info.label, cx, cy);
@@ -860,13 +860,13 @@ class Game {
   drawScore() {
     const { ctx } = this;
     ctx.fillStyle = CONFIG.COLORS.score;
-    ctx.font = 'bold 14px "Segoe UI", Arial, sans-serif';
+    ctx.font = '9px "Press Start 2P", "Segoe UI", sans-serif';
     ctx.textAlign = 'right';
-    ctx.fillText(`Score: ${this.score}`, CONFIG.CANVAS_SIZE - 10, 20);
+    ctx.fillText(`Score: ${this.score}`, CONFIG.CANVAS_SIZE - 8, 16);
 
-    ctx.font = '11px "Segoe UI", Arial, sans-serif';
+    ctx.font = '7px "Press Start 2P", "Segoe UI", sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.fillText(`Best: ${this.highScore}`, CONFIG.CANVAS_SIZE - 10, 36);
+    ctx.fillText(`Best: ${this.highScore}`, CONFIG.CANVAS_SIZE - 8, 30);
 
     // Active power-up indicator
     if (this.activePowerUp) {
@@ -875,8 +875,8 @@ class Game {
       const secs = (remaining / 1000).toFixed(1);
 
       ctx.fillStyle = info.color;
-      ctx.font = 'bold 12px "Segoe UI", Arial, sans-serif';
-      ctx.fillText(`${info.name}: ${secs}s`, CONFIG.CANVAS_SIZE - 10, 52);
+      ctx.font = '7px "Press Start 2P", "Segoe UI", sans-serif';
+      ctx.fillText(`${info.name}: ${secs}s`, CONFIG.CANVAS_SIZE - 8, 44);
     }
 
     ctx.textAlign = 'left';
@@ -914,7 +914,7 @@ class Game {
     ctx.textAlign = 'center';
 
     ctx.fillStyle = CONFIG.COLORS.snakeHead;
-    ctx.font = 'bold 42px Georgia, serif';
+    ctx.font = '22px "Press Start 2P", Georgia, serif';
     ctx.fillText('Solid Snake', cx, 120);
 
     ctx.fillStyle = '#00b400';
@@ -922,23 +922,22 @@ class Game {
     ctx.fillText('\u{1F40D}', cx, 185);
 
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.font = '15px "Segoe UI", Arial, sans-serif';
+    ctx.font = '7px "Press Start 2P", "Segoe UI", sans-serif';
     const lines = this.isTouchDevice
-      ? ['Swipe / buttons  \u2014  movement']
+      ? ['Swipe / buttons - move']
       : [
-          '\u2190 \u2191 \u2193 \u2192  /  W A S D  \u2014  movement',
-          'Space  \u2014  pause',
+          'Arrows / WASD - move',
+          'Space - pause',
         ];
     lines.forEach((line, i) => {
-      ctx.fillText(line, cx, 230 + i * 24);
+      ctx.fillText(line, cx, 230 + i * 20);
     });
 
     ctx.fillStyle = CONFIG.COLORS.snakeHead;
-    ctx.font = 'bold 18px "Segoe UI", Arial, sans-serif';
+    ctx.font = '10px "Press Start 2P", "Segoe UI", sans-serif';
     const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 400);
     ctx.globalAlpha = 0.4 + 0.6 * pulse;
-    const startText = this.isTouchDevice ? 'Tap to start' : 'Press any key to start';
-    ctx.fillText(startText, cx, 330);
+    const startText = this.isTouchDevice ? 'Tap to start' : 'Press any key';
     ctx.globalAlpha = 1;
     ctx.textAlign = 'left';
   }
@@ -950,12 +949,12 @@ class Game {
 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 40px Georgia, serif';
+    ctx.font = '24px "Press Start 2P", Georgia, serif';
     ctx.fillText('PAUSED', cx, CONFIG.CANVAS_SIZE / 2 - 10);
 
-    ctx.font = '16px "Segoe UI", Arial, sans-serif';
+    ctx.font = '8px "Press Start 2P", "Segoe UI", sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    const pauseText = this.isTouchDevice ? 'Tap to continue' : 'Press Space to continue';
+    const pauseText = this.isTouchDevice ? 'Tap to continue' : 'Press Space';
     ctx.fillText(pauseText, cx, CONFIG.CANVAS_SIZE / 2 + 30);
     ctx.textAlign = 'left';
   }
@@ -968,29 +967,28 @@ class Game {
     ctx.textAlign = 'center';
 
     ctx.fillStyle = '#e74c3c';
-    ctx.font = 'bold 44px Georgia, serif';
+    ctx.font = '20px "Press Start 2P", Georgia, serif';
     ctx.fillText('GAME OVER', cx, 140);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px "Segoe UI", Arial, sans-serif';
+    ctx.font = '12px "Press Start 2P", "Segoe UI", sans-serif';
     ctx.fillText(`Score: ${this.score}`, cx, 200);
 
-    ctx.font = '18px "Segoe UI", Arial, sans-serif';
+    ctx.font = '9px "Press Start 2P", "Segoe UI", sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.fillText(`Best: ${this.highScore}`, cx, 232);
+    ctx.fillText(`Best: ${this.highScore}`, cx, 228);
 
     if (this.score >= this.highScore && this.score > 0) {
       ctx.fillStyle = CONFIG.COLORS.snakeHead;
-      ctx.font = 'bold 16px "Segoe UI", Arial, sans-serif';
-      ctx.fillText('New Record!', cx, 264);
+      ctx.font = '9px "Press Start 2P", "Segoe UI", sans-serif';
+      ctx.fillText('New Record!', cx, 256);
     }
 
     ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    ctx.font = '16px "Segoe UI", Arial, sans-serif';
+    ctx.font = '8px "Press Start 2P", "Segoe UI", sans-serif';
     const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 400);
     ctx.globalAlpha = 0.4 + 0.6 * pulse;
-    const restartText = this.isTouchDevice ? 'Tap to restart' : 'Press Enter to restart';
-    ctx.fillText(restartText, cx, 320);
+    const restartText = this.isTouchDevice ? 'Tap to restart' : 'Press Enter';
     ctx.globalAlpha = 1;
     ctx.textAlign = 'left';
   }

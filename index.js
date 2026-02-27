@@ -255,6 +255,7 @@ class Game {
       return;
     }
 
+    this.drawLighting();
     this.drawObstacles();
     this.drawApple();
     this.drawPowerUp();
@@ -506,6 +507,9 @@ class Game {
   // --- Drawing ---
 
   drawBackground() {
+    const { ctx } = this;
+    const size = CONFIG.CANVAS_SIZE;
+
     let bgIndex = 0;
     for (const [minScore, idx] of CONFIG.BG_LEVELS) {
       if (this.score >= minScore) {
@@ -515,11 +519,52 @@ class Game {
 
     const pattern = this.bgPatterns[bgIndex];
     if (pattern) {
-      this.ctx.fillStyle = pattern;
+      ctx.fillStyle = pattern;
     } else {
-      this.ctx.fillStyle = '#1a1a2e';
+      ctx.fillStyle = '#1a1a2e';
     }
-    this.ctx.fillRect(0, 0, CONFIG.CANVAS_SIZE, CONFIG.CANVAS_SIZE);
+    ctx.fillRect(0, 0, size, size);
+
+    // Subtle grid
+    const ts = CONFIG.TILE_SIZE;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.lineWidth = 0.5;
+    for (let i = 1; i < CONFIG.TILE_COUNT; i++) {
+      const pos = i * ts;
+      ctx.beginPath();
+      ctx.moveTo(pos, 0);
+      ctx.lineTo(pos, size);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, pos);
+      ctx.lineTo(size, pos);
+      ctx.stroke();
+    }
+
+    // Vignette
+    const vg = ctx.createRadialGradient(size / 2, size / 2, size * 0.25, size / 2, size / 2, size * 0.7);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.5)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, size, size);
+  }
+
+  drawLighting() {
+    const { ctx } = this;
+    const ts = CONFIG.TILE_SIZE;
+    const hx = this.headX * ts + ts / 2;
+    const hy = this.headY * ts + ts / 2;
+    const radius = 120;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const lg = ctx.createRadialGradient(hx, hy, 0, hx, hy, radius);
+    lg.addColorStop(0, 'rgba(255, 200, 100, 0.08)');
+    lg.addColorStop(0.5, 'rgba(255, 180, 80, 0.03)');
+    lg.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = lg;
+    ctx.fillRect(0, 0, CONFIG.CANVAS_SIZE, CONFIG.CANVAS_SIZE);
+    ctx.restore();
   }
 
   drawSnake() {
@@ -528,22 +573,73 @@ class Game {
     const cs = CONFIG.CELL_SIZE;
     const len = this.snakeParts.length;
 
+    // Shadows first (under everything)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+    for (let i = 0; i < len; i++) {
+      const part = this.snakeParts[i];
+      const sx = part.x * ts + 3;
+      const sy = part.y * ts + 4;
+      ctx.beginPath();
+      ctx.ellipse(sx + cs / 2, sy + cs / 2 + 2, cs / 2 - 1, cs / 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Head shadow
+    const hsx = this.headX * ts + 3;
+    const hsy = this.headY * ts + 4;
+    ctx.beginPath();
+    ctx.ellipse(hsx + cs / 2, hsy + cs / 2 + 2, cs / 2, cs / 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Body segments with 3D gradient
     for (let i = 0; i < len; i++) {
       const part = this.snakeParts[i];
       const ratio = len > 1 ? i / (len - 1) : 0;
-      const r = 0;
       const g = Math.floor(100 * (1 - ratio) + 180 * ratio);
-      const b = 0;
-      ctx.fillStyle = `rgb(${r},${g},${b})`;
       const x = part.x * ts + 1;
       const y = part.y * ts + 1;
+      const cx = x + cs / 2;
+      const cy = y + cs / 2;
+
+      // Radial gradient for 3D volume
+      const grad = ctx.createRadialGradient(cx - cs * 0.15, cy - cs * 0.15, 1, cx, cy, cs * 0.6);
+      grad.addColorStop(0, `rgb(${Math.min(80, g)}, ${Math.min(255, g + 80)}, ${Math.min(80, g)})`);
+      grad.addColorStop(1, `rgb(0, ${Math.max(40, g - 60)}, 0)`);
+      ctx.fillStyle = grad;
       this.drawRoundedRect(x, y, cs, cs, 4);
+
+      // Highlight
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.beginPath();
+      ctx.ellipse(cx - cs * 0.1, cy - cs * 0.15, cs * 0.2, cs * 0.12, -0.5, 0, Math.PI * 2);
+      ctx.fill();
     }
 
+    // Head with 3D gradient
     const hx = this.headX * ts + 1;
     const hy = this.headY * ts + 1;
-    ctx.fillStyle = CONFIG.COLORS.snakeHead;
+    const hcx = hx + cs / 2;
+    const hcy = hy + cs / 2;
+
+    const headGrad = ctx.createRadialGradient(hcx - cs * 0.15, hcy - cs * 0.15, 1, hcx, hcy, cs * 0.6);
+    headGrad.addColorStop(0, '#ffb840');
+    headGrad.addColorStop(1, '#cc6600');
+    ctx.fillStyle = headGrad;
     this.drawRoundedRect(hx, hy, cs, cs, 5);
+
+    // Head glow
+    ctx.save();
+    ctx.shadowColor = '#ff8c00';
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = 'rgba(255, 140, 0, 0.01)';
+    this.drawRoundedRect(hx, hy, cs, cs, 5);
+    ctx.restore();
+
+    // Head highlight
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.beginPath();
+    ctx.ellipse(hcx - cs * 0.1, hcy - cs * 0.15, cs * 0.22, cs * 0.13, -0.5, 0, Math.PI * 2);
+    ctx.fill();
+
     this.drawEyes(hx, hy, cs);
   }
 
@@ -589,23 +685,63 @@ class Game {
     const cs = CONFIG.CELL_SIZE;
     const x = this.appleX * ts + 1;
     const y = this.appleY * ts + 1;
+    const acx = x + cs / 2;
+    const acy = y + cs / 2;
 
     const pulse = Math.sin(performance.now() / 200) * 1.5;
     const radius = cs / 2 + pulse;
 
+    // Shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+    ctx.beginPath();
+    ctx.ellipse(acx + 1, acy + 4, radius * 0.8, radius * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // RTX light rays
+    ctx.save();
+    const rayAngle = performance.now() / 2000;
+    const rayCount = 6;
+    for (let i = 0; i < rayCount; i++) {
+      const angle = rayAngle + (Math.PI * 2 * i) / rayCount;
+      const rayLen = 30 + pulse * 3;
+      const rg = ctx.createLinearGradient(acx, acy, acx + Math.cos(angle) * rayLen, acy + Math.sin(angle) * rayLen);
+      rg.addColorStop(0, 'rgba(231, 76, 60, 0.3)');
+      rg.addColorStop(1, 'rgba(231, 76, 60, 0)');
+      ctx.strokeStyle = rg;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(acx, acy);
+      ctx.lineTo(acx + Math.cos(angle) * rayLen, acy + Math.sin(angle) * rayLen);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Glow
     ctx.save();
     ctx.shadowColor = CONFIG.COLORS.apple;
-    ctx.shadowBlur = 10 + pulse * 2;
+    ctx.shadowBlur = 18 + pulse * 3;
 
-    ctx.fillStyle = CONFIG.COLORS.apple;
+    // 3D apple with radial gradient
+    const appleGrad = ctx.createRadialGradient(acx - radius * 0.25, acy - radius * 0.25, 1, acx, acy, radius);
+    appleGrad.addColorStop(0, '#ff6b5b');
+    appleGrad.addColorStop(0.7, '#e74c3c');
+    appleGrad.addColorStop(1, '#a0220f');
+    ctx.fillStyle = appleGrad;
     ctx.beginPath();
-    ctx.arc(x + cs / 2, y + cs / 2, radius, 0, Math.PI * 2);
+    ctx.arc(acx, acy, radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
+    // Highlight
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.beginPath();
+    ctx.ellipse(acx - radius * 0.2, acy - radius * 0.25, radius * 0.3, radius * 0.18, -0.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Leaf
     ctx.fillStyle = '#27ae60';
     ctx.beginPath();
-    ctx.ellipse(x + cs / 2 + 2, y + 2, 4, 2, Math.PI / 4, 0, Math.PI * 2);
+    ctx.ellipse(acx + 2, y + 2, 4, 2, Math.PI / 4, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -630,11 +766,33 @@ class Game {
 
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.shadowColor = info.color;
-    ctx.shadowBlur = 8;
 
-    // Diamond shape
+    // Pulsating outer glow
+    const glowPulse = Math.sin(performance.now() / 300) * 0.3 + 0.7;
+    ctx.save();
+    ctx.globalAlpha = alpha * glowPulse * 0.3;
     ctx.fillStyle = info.color;
+    ctx.beginPath();
+    ctx.arc(cx, cy, half + 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Shadow
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+    ctx.beginPath();
+    ctx.ellipse(cx + 1, cy + 4, half * 0.7, half * 0.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowColor = info.color;
+    ctx.shadowBlur = 15;
+
+    // Diamond shape with gradient
+    const pgr = ctx.createRadialGradient(cx - half * 0.2, cy - half * 0.2, 1, cx, cy, half);
+    pgr.addColorStop(0, '#ffffff');
+    pgr.addColorStop(0.4, info.color);
+    pgr.addColorStop(1, info.color);
+    ctx.fillStyle = pgr;
     ctx.beginPath();
     ctx.moveTo(cx, cy - half);
     ctx.lineTo(cx + half, cy);
@@ -664,11 +822,24 @@ class Game {
     for (const obs of this.obstacles) {
       const x = obs.x * ts + 1;
       const y = obs.y * ts + 1;
+      const ocx = x + cs / 2;
+      const ocy = y + cs / 2;
 
-      ctx.fillStyle = CONFIG.COLORS.obstacle;
+      // Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.beginPath();
+      ctx.ellipse(ocx + 1, ocy + 4, cs / 2 - 1, cs / 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 3D gradient
+      const obsGrad = ctx.createRadialGradient(ocx - cs * 0.15, ocy - cs * 0.15, 1, ocx, ocy, cs * 0.6);
+      obsGrad.addColorStop(0, '#777777');
+      obsGrad.addColorStop(1, '#2a2a2a');
+      ctx.fillStyle = obsGrad;
       this.drawRoundedRect(x, y, cs, cs, 3);
 
-      ctx.strokeStyle = CONFIG.COLORS.obstacleBorder;
+      // X mark
+      ctx.strokeStyle = 'rgba(255, 60, 60, 0.5)';
       ctx.lineWidth = 1.5;
       const margin = cs * 0.25;
       ctx.beginPath();
@@ -677,6 +848,12 @@ class Game {
       ctx.moveTo(x + cs - margin, y + margin);
       ctx.lineTo(x + margin, y + cs - margin);
       ctx.stroke();
+
+      // Highlight
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.beginPath();
+      ctx.ellipse(ocx - cs * 0.1, ocy - cs * 0.15, cs * 0.18, cs * 0.1, -0.5, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 

@@ -884,7 +884,10 @@ class Game {
         this.yVelocity = 0;
         this.xVelocity = 1;
         break;
+      default:
+        return;
     }
+    this.updateDirectionButtons();
   }
 
   setDirection(xv, yv) {
@@ -894,6 +897,21 @@ class Game {
     if (yv === -1 && this.yVelocity === 1) return;
     this.xVelocity = xv;
     this.yVelocity = yv;
+    this.updateDirectionButtons();
+  }
+
+  updateDirectionButtons() {
+    const map = {
+      '0,-1': 'keyboard_key_up',
+      '0,1': 'keyboard_key_down',
+      '-1,0': 'keyboard_key_left',
+      '1,0': 'keyboard_key_right',
+    };
+    const activeId = map[`${this.xVelocity},${this.yVelocity}`];
+    for (const id of Object.values(map)) {
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.toggle('active-direction', id === activeId);
+    }
   }
 
   bindCanvasTap() {

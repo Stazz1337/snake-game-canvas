@@ -88,9 +88,19 @@ canvas {
   touch-action: manipulation;
 }
 
+.movements_control:focus {
+  outline: none;
+}
+
 .movements_control:active {
   background: rgba(255, 255, 255, 0.2);
   transform: scale(0.92);
+}
+
+.movements_control.active-direction {
+  background: rgba(255, 140, 0, 0.3);
+  border-color: #ff8c00;
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.5);
 }
 
 #keyboard_key_up {
